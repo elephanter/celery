@@ -44,10 +44,13 @@ def asynloop(obj, connection, consumer, blueprint, hub, qos,
     _enable_amqheartbeats(hub.timer, connection, rate=hbrate)
 
     consumer.on_message = on_task_received
-    consumer.consume()
-    obj.on_ready()
+
+    #applied pull request from "prevent consuming queue before ready on startup #3752"
     obj.controller.register_with_event_loop(hub)
     obj.register_with_event_loop(hub)
+
+    consumer.consume()
+    obj.on_ready()
 
     # did_start_ok will verify that pool processes were able to start,
     # but this will only work the first time we start, as
